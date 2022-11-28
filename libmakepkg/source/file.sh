@@ -96,13 +96,28 @@ extract_file() {
 		return 0
 	fi
 
+  tar="tar"
+  if command -v bsdtar >/dev/null; then
+    tar="bsdtar"
+  fi
+
 	# do not rely on extension for file type
-	local file_type=$(file -S -bizL -- "$file")
+	local file_type=$(file -bizL -- "$file")
+	# local file_type=$(file -S -bizL -- "$file")
 	local ext=${file##*.}
 	local cmd=''
 	case "$file_type" in
+		*application/zip*|*application/x-zip*)
+      if [[ $tar = "bsdtar" ]]; then
+        # use bsdtar if available
+        cmd="$tar"
+        break
+      fi
+      # fallback to unzip
+      cmd="unzip"
+      ;;
 		*application/x-tar*|*application/zip*|*application/x-zip*|*application/x-cpio*)
-			cmd="bsdtar" ;;
+			cmd="$tar" ;;
 		*application/x-gzip*|*application/gzip*)
 			case "$ext" in
 				gz|z|Z) cmd="gzip" ;;
@@ -125,8 +140,8 @@ extract_file() {
 			esac ;;
 		*)
 			# See if bsdtar can recognize the file
-			if bsdtar -tf "$file" -q '*' &>/dev/null; then
-				cmd="bsdtar"
+			if $"tar" -tf "$file" -q '*' &>/dev/null; then
+				cmd="$tar"
 			else
 				return 0
 			fi ;;

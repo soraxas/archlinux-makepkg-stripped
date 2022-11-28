@@ -28,6 +28,7 @@ source "$LIBRARY/util/message.sh"
 executable_functions+=('executable_pacman')
 
 executable_pacman() {
+  return
     if (( ! NODEPS || DEP_BIN || RMDEPS || INSTALL )); then
 		if [[ -z $PACMAN_PATH ]]; then
 			error "$(gettext "Cannot find the %s binary required for dependency operations.")" "$PACMAN"
