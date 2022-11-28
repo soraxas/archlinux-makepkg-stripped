@@ -149,12 +149,18 @@ extract_file() {
 
 	local ret=0
 	msg2 "$(gettext "Extracting %s with %s")" "$file" "$cmd"
-	if [[ $cmd = "bsdtar" ]]; then
-		$cmd -xf "$file" || ret=$?
-	else
-		rm -f -- "${file%.*}"
-		$cmd -dcf -- "$file" > "${file%.*}" || ret=$?
-	fi
+  case "$cmd" in
+    bsdtar|tar)
+		  $cmd -xf "$file" || ret=$?
+      ;;
+    unzip)
+      unzip "$file" || ret=$?
+      ;;
+    *)
+      rm -f -- "${file%.*}"
+      $cmd -dcf -- "$file" > "${file%.*}" || ret=$?
+      ;;
+  esac
 	if (( ret )); then
 		error "$(gettext "Failed to extract %s")" "$file"
 		plainerr "$(gettext "Aborting...")"
