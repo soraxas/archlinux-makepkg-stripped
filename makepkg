@@ -422,6 +422,10 @@ source_buildfile() {
 }
 
 run_function_safe() {
+  python() {
+    command python3 "$@"
+  }
+
 	local restoretrap restoreshopt
 
 	# we don't set any special shopts of our own, but we don't want the user to
